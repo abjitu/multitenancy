@@ -12,3 +12,5 @@
 
 In this example we integrated Spring, Hibernate Multi-tenancy, JPA<br />
 
+For More on Hibernate Multi-tenancy. Please refer to below link <br />
+http://docs.jboss.org/hibernate/orm/4.2/devguide/en-US/html/ch16.html <br />
