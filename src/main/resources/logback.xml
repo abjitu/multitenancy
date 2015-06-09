@@ -7,7 +7,7 @@
 		</encoder>
 	</appender>
 
-	<logger name="com.sce" level="DEBUG" />
+	<logger name="com.multitenancy" level="DEBUG" />
 
 	<root level="DEBUG">
 		<appender-ref ref="STDOUT" />
