@@ -2,10 +2,12 @@ package com.multitenancy.persistence;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,11 +37,24 @@ public class BaseDao<T, PK extends Serializable> {
     public void remove(T entity) {
         entityManager.remove(entity);
     }
-    
+
     public void remove(PK id) {
         entityManager.remove(find(id));
     }
-    
+
+    public List<T> findAll() {
+        log.debug("finding all {} instances", this.persistentClass);
+
+        String sql = "from " + this.persistentClass.getName() + " model order by model.id desc";
+
+        Query query = entityManager.createQuery(sql, persistentClass);
+
+        @SuppressWarnings("unchecked")
+        List<T> list = query.getResultList();
+
+        return list;
+    }
+
     public List<T> findByProperty(String propertyName, Object value) {
         log.debug("finding {} instance with property: {}, value : {}", this.persistentClass, propertyName, value);
 
@@ -55,17 +70,11 @@ public class BaseDao<T, PK extends Serializable> {
         return list;
     }
 
-    public T findOneByProperty(String propertyName, Object value) {
-        log.debug("finding {} instance with property: {}, value : {}", this.persistentClass, propertyName, value);
+    public T findUniqueByProperty(String propertyName, Object value) {
+        log.debug("finding Unique {} instance with property: {}, value : {}", this.persistentClass, propertyName, value);
+
         T result = null;
-        String sql = "from " + this.persistentClass.getName() + " model where model." + propertyName + " = :"
-                + propertyName;
-
-        Query query = entityManager.createQuery(sql, persistentClass);
-        query.setParameter(propertyName, value);
-
-        @SuppressWarnings("unchecked")
-        List<T> list = query.getResultList();
+        List<T> list = findByProperty(propertyName, value);
         if (null != list && list.size() == 1) {
             result = list.get(0);
         }
@@ -73,31 +82,29 @@ public class BaseDao<T, PK extends Serializable> {
         return result;
     }
 
-    public List<T> findByPropertyAndSortedById(String propertyName, Object value) {
-        log.debug("finding {} instance with property: {}, value : {}", this.persistentClass, propertyName, value);
+    @SuppressWarnings("unchecked")
+    public List<T> findByNamedQuery(String queryName, Map<String, Object> queryParams, Integer page, Integer size) {
+        TypedQuery<T> namedQuery = entityManager.createNamedQuery(queryName, persistentClass);
+        if (null != queryParams) {
+            for (String s : queryParams.keySet()) {
+                Object obj = queryParams.get(s);
+                namedQuery.setParameter(s, obj);
+            }
+        }
+        if (page != null && page > 0 && size != null) {
+            namedQuery.setFirstResult((page - 1) * size);
+            namedQuery.setMaxResults(size);
+        }
 
-        String sql = "from " + this.persistentClass.getName() + " model where model." + propertyName + " = :"
-                + propertyName + " order by model.id desc";
-
-        Query query = entityManager.createQuery(sql, persistentClass);
-        query.setParameter(propertyName, value);
-
-        @SuppressWarnings("unchecked")
-        List<T> list = query.getResultList();
-
-        return list;
+        return namedQuery.getResultList();
     }
 
-    public List<T> findAll() {
-        log.debug("finding all {} instances", this.persistentClass);
-
-        String sql = "from " + this.persistentClass.getName() + " model order by model.id desc";
-
-        Query query = entityManager.createQuery(sql, persistentClass);
-
-        @SuppressWarnings("unchecked")
-        List<T> list = query.getResultList();
-
-        return list;
+    public List<T> findByNamedQuery(String queryName) {
+        return findByNamedQuery(queryName, null, null, null);
     }
+
+    public List<T> findByNamedQuery(String queryName, Map<String, Object> queryParams) {
+        return findByNamedQuery(queryName, queryParams, null, null);
+    }
+
 }

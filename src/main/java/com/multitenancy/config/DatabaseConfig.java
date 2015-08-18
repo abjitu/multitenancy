@@ -90,7 +90,7 @@ public class DatabaseConfig {
     private Map<String, Object> hibernateProperties() {
         Map<String, Object> hibernateProperties = new HashMap<String, Object>();
 
-        hibernateProperties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        hibernateProperties.put("hibernate.dialect", "com.multitenancy.persistence.dialect.JsonbPostgreSQLDialect");
         hibernateProperties.put("hibernate.query.substitutions", "true 'Y', false 'N'");
         hibernateProperties.put("hibernate.show_sql", "true");
         hibernateProperties.put("hibernate.format_sql", "true");
