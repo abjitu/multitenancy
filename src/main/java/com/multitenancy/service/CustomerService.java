@@ -46,6 +46,7 @@ public class CustomerService {
                 customer.setFirstName(entity.getFirstName());
                 customer.setLastName(entity.getLastName());
                 customer.setEmail(entity.getEmail());
+                customer.setPattern(entity.getPattern());
                 customerDao.update(customer);
                 result = Response.get(ResultType.SUCCESS);
             }
@@ -57,8 +58,18 @@ public class CustomerService {
     }
 
     @Transactional(readOnly = true)
+    private CustomerEntity readByEmail1(String email) {
+        return customerDao.findByEmail(email);
+    }
+
+    @Transactional(readOnly = true)
+    private CustomerEntity readByJsonB() {
+        return customerDao.findByJsonb2();
+    }
+
+    @Transactional(readOnly = true)
     private CustomerEntity readByEmail(String email) {
-        return customerDao.findOneByProperty(CustomerDao.EMAIL, email);
+        return customerDao.findUniqueByProperty(CustomerDao.EMAIL, email);
     }
 
     @Transactional(readOnly = true)

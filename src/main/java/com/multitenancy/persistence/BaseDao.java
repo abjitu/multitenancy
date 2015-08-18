@@ -82,7 +82,6 @@ public class BaseDao<T, PK extends Serializable> {
         return result;
     }
 
-    @SuppressWarnings("unchecked")
     public List<T> findByNamedQuery(String queryName, Map<String, Object> queryParams, Integer page, Integer size) {
         TypedQuery<T> namedQuery = entityManager.createNamedQuery(queryName, persistentClass);
         if (null != queryParams) {
